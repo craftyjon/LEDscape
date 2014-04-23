@@ -1232,7 +1232,7 @@ void set_next_frame_data(
 	memcpy(g_runtime_state.next_frame_data, frame_data, data_size);
 
 	// Zero out any pixels not set by the new frame
-	memset((uint8_t*) g_runtime_state.next_frame_data + data_size, 0, (g_runtime_state.frame_size*3 - data_size));
+	memset((uint8_t*) g_runtime_state.next_frame_data + data_size, 127, (g_runtime_state.frame_size*3 - data_size));
 
 	// Update the timestamp & count
 	gettimeofday(&g_runtime_state.next_frame_tv, NULL);
@@ -1927,7 +1927,8 @@ void* udp_server_thread(void* unused_data)
 		return NULL;
 	}
 
-	uint32_t required_packet_size = g_server_config.used_strip_count * g_server_config.leds_per_strip * 3 + sizeof(opc_cmd_t);
+	//uint32_t required_packet_size = g_server_config.used_strip_count * g_server_config.leds_per_strip * 3 + sizeof(opc_cmd_t);
+	uint32_t required_packet_size = 2 * g_server_config.leds_per_strip * 3 + sizeof(opc_cmd_t);
 	if (required_packet_size > 65507) {
 		fprintf(stderr,
 			"[udp] OPC command for %d LEDs cannot fit in UDP packet. Use --count or --strip-count to reduce the number of required LEDs, or disable UDP server with --udp-port 0\n",
@@ -1973,6 +1974,7 @@ void* udp_server_thread(void* unused_data)
 			if (rc >= sizeof(opc_cmd_t) + cmd_len) {
 				if (cmd->command == 0) {
 					set_next_frame_data(opc_cmd_payload, cmd_len, TRUE);
+					//fprintf(stderr, "[udp] Got a packet, %d bytes, header %X %X %X %X %x %x %x\n", cmd_len, buf[0], buf[1], buf[2], buf[3], buf[4], buf[5], buf[6]);
 				} else if (cmd->command == 255) {
 					// System specific commands
 					const uint16_t system_id = opc_cmd_payload[0] << 8 | opc_cmd_payload[1];

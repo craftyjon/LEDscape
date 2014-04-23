@@ -17,6 +17,7 @@
  * correct number of bytes per row..
  */
 #define LEDSCAPE_NUM_STRIPS 48
+//#define LEDSCAPE_NUM_STRIPS 2
 
 
 /**
